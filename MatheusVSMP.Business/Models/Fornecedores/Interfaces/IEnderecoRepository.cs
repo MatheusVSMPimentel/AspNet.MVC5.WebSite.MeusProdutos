@@ -1,10 +1,11 @@
-﻿using System;
+﻿using MatheusVSMP.Business.Core.Data;
+using System;
 using System.Threading.Tasks;
 
 namespace MatheusVSMP.Business.Models.Fornecedores.Interfaces
 {
-    public interface IEnderecoRepository
+    public interface IEnderecoRepository : IRepository<Endereco>
     {
-        Task<Endereço> ObterEnderecoPorFornecedor(Guid fornecedorId);
+        Task<Endereco> ObterEnderecoPorFornecedor(Guid fornecedorId);
     }
 }

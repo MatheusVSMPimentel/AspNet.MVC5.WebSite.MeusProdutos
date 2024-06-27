@@ -1,4 +1,5 @@
-﻿using MatheusVSMP.Business.Core.Services;
+﻿using MatheusVSMP.Business.Core.Notificacoes;
+using MatheusVSMP.Business.Core.Services;
 using MatheusVSMP.Business.Models.Produtos.Interfaces;
 using MatheusVSMP.Business.Models.Produtos.Validators;
 using System;
@@ -10,7 +11,7 @@ namespace MatheusVSMP.Business.Models.Produtos.Services
     {
         private readonly IProdutoRepository _produtoRepository;
 
-        public ProdutoService(IProdutoRepository produtoRepository)
+        public ProdutoService(IProdutoRepository produtoRepository, INotificador notificador) : base(notificador)
         {
             _produtoRepository = produtoRepository;
         }
@@ -28,7 +29,7 @@ namespace MatheusVSMP.Business.Models.Produtos.Services
 
             await _produtoRepository.Atualizar(produto);
         }
-           
+
 
         public async Task Remover(Guid id)
         {

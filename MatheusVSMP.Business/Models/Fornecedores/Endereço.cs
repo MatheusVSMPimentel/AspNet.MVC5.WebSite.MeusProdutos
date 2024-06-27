@@ -2,7 +2,7 @@
 
 namespace MatheusVSMP.Business.Models.Fornecedores
 {
-    public class Endereço : Entity
+    public class Endereco : Entity
     {
         public string Logradouro { get; set; }
         public string Numero { get; set; }

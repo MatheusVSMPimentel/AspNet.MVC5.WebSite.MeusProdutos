@@ -1,5 +1,6 @@
 ﻿using MatheusVSMP.Business.Models.Fornecedores;
 using MatheusVSMP.Business.Models.Fornecedores.Interfaces;
+using MatheusVSMP.Infra.Data.Context;
 using System;
 using System.Data.Entity;
 using System.Linq;
@@ -9,6 +10,10 @@ namespace MatheusVSMP.Infra.Data.Repository
 {
     public class FornecedorRepository : Repository<Fornecedor>, IFornecedorRepository
     {
+        public FornecedorRepository(SqlServerContext db) : base(db)
+        {
+        }
+
         public async Task<Fornecedor> ObterFornecedorEndereco(Guid id)
         {
             return await _db.Fornecedores.AsNoTracking().Include(f => f.Endereco).FirstOrDefaultAsync(f => f.Id == id);

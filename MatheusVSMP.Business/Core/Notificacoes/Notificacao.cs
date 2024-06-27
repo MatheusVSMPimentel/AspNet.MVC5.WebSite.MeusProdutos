@@ -1,12 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MatheusVSMP.Business.Core.Notificacoes
+﻿namespace MatheusVSMP.Business.Core.Notificacoes
 {
-    internal class Notificacao
+    public class Notificacao
     {
+        public readonly string Message;
+
+        protected Notificacao(string message)
+        {
+            Message = message;
+        }
+
+        public static Notificacao CreateNotificacao(string message) => new Notificacao(message);
     }
 }

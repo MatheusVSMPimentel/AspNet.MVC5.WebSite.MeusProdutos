@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace MatheusVSMP.Business.Core.Notificacoes
 {
-    internal class Notificador : INotificador
+    public class Notificador : INotificador
     {
         private List<Notificacao> _notificacoes;
 

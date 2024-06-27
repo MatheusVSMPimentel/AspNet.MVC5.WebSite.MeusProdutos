@@ -1,0 +1,39 @@
+﻿@using MatheusVSMP.AppMvc.MeusProdutos.Extensions;
+
+@model IEnumerable<MatheusVSMP.AppMvc.MeusProdutos.ViewModels.FornecedorViewModel>
+@{
+    ViewBag.Title = "Lista de Fornecedores";
+}
+
+<h2>ViewBag.Title</h2>
+<hr>
+<p>
+    <a class="btn btn-success" href="@Url.Action("Create","Fornecedores")">
+        <span class="glyphicon glyphicon-save"> </span>
+        Criar Novo Fornecedor
+    </a>
+</p>
+<table class="table table-hover">
+    <thead>
+        <tr>
+        <th>@Html.DisplayNameFor(model => model.Nome)</th>
+        <th>@Html.DisplayNameFor(model => model.Documento)</th>
+        <th>@Html.DisplayNameFor(model => model.Ativo)</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var fornecedor in Model)
+            {
+                <tr>
+                    <td>@Html.DisplayFor(modelItem => fornecedor.Nome)</td>
+                    <td>@this.FormatarDocumento(fornecedor.TipoFornecedor, fornecedor.Documento)</td>
+                    <td>@Html.DisplayFor(modelItem => fornecedor.Ativo)</td>
+                    <td class="text-right">
+                        <a class="btn btn-warning" href="@Url.Action("Details", "Fornecedores", new {id = fornecedor.Id})"><span class="glyphicon glyphicon-search"></span></a>
+                        <a class="btn btn-info" href="@Url.Action("Edit", "Fornecedores", new {id = fornecedor.Id})"><span class="glyphicon glyphicon-pencil"></span></a>
+                        <a class="btn btn-danger" href="@Url.Action("Delete", "Fornecedores", new {id = fornecedor.Id})"><span class="glyphicon glyphicon-trash"></span></a>
+                    </td>
+                </tr>
+            }
+    </tbody>
+</table>

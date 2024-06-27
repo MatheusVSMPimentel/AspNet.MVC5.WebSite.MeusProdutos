@@ -15,9 +15,9 @@ namespace MatheusVSMP.Infra.Data.Repository
         protected readonly SqlServerContext _db;
         protected readonly DbSet<TEntity> _dbSet;
 
-        public Repository()
+        public Repository(SqlServerContext db)
         {
-            _db = new SqlServerContext();
+            _db = db;
             _dbSet = _db.Set<TEntity>();
         }
         public async Task<IEnumerable<TEntity>> Buscar(Expression<Func<TEntity, bool>> predicate)

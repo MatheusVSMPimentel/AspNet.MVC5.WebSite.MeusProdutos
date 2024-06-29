@@ -184,10 +184,12 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\BaseController.cs" />
     <Compile Include="Controllers\FornecedoresController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\ProdutosController.cs" />
+    <Compile Include="Extensions\CustomAuthorization.cs" />
     <Compile Include="Extensions\MoedaAttribute.cs" />
     <Compile Include="Extensions\RazorExtension.cs" />
     <Compile Include="Global.asax.cs">
@@ -199,6 +201,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
     <Compile Include="ViewModels\EnderecoViewModel.cs" />
+    <Compile Include="ViewModels\ErrorViewModel.cs" />
     <Compile Include="ViewModels\FornecedorViewModel.cs" />
     <Compile Include="ViewModels\ProdutoViewModel.cs" />
   </ItemGroup>
@@ -223,6 +226,8 @@
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
+    <Content Include="imagens\70c68567-1c1b-401a-9ee3-6c5d835246fd_capa.jpg" />
+    <Content Include="imagens\9ff60160-82bd-4b21-9cca-b9c1bedc4348_Rihanna.png" />
     <Content Include="Scripts\bootstrap.bundle.js" />
     <Content Include="Scripts\bootstrap.bundle.min.js" />
     <Content Include="Scripts\bootstrap.esm.js" />
@@ -290,6 +295,7 @@
     <Content Include="Views\Fornecedores\_DetalhesEndereco.cshtml" />
     <Content Include="Views\Fornecedores\_AtualizarEndereco.cshtml" />
     <Content Include="Views\Produtos\_ListaProdutos.cshtml" />
+    <Content Include="Views\Shared\_ErrorSummary.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

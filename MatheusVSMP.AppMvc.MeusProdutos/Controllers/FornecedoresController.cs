@@ -1,55 +1,64 @@
 ﻿using AutoMapper;
+using MatheusVSMP.AppMvc.MeusProdutos.Extensions;
 using MatheusVSMP.AppMvc.MeusProdutos.ViewModels;
+using MatheusVSMP.Business.Core.Notificacoes;
 using MatheusVSMP.Business.Models.Fornecedores;
 using MatheusVSMP.Business.Models.Fornecedores.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web.Mvc;
+using static MatheusVSMP.Business.Core.Constants.CommomConstants;
 
 namespace MatheusVSMP.AppMvc.MeusProdutos.Controllers
 {
-    public class FornecedoresController : Controller
+    [Authorize]
+    public class FornecedoresController : BaseController
     {
         private readonly IFornecedorService _fornecedorService;
         private readonly IFornecedorRepository _fornecedorRepository;
         private readonly IMapper _mapper;
 
 
-        public FornecedoresController(IFornecedorService fornecedorService, IFornecedorRepository fornecedorRepository, IMapper mapper)
+        public FornecedoresController(IFornecedorService fornecedorService, IFornecedorRepository fornecedorRepository, IMapper mapper,
+                                      INotificador notificador) : base(notificador)
         {
             _fornecedorService = fornecedorService;
             _fornecedorRepository = fornecedorRepository;
             _mapper = mapper;
         }
 
+        [AllowAnonymous]
         [Route("lista-de-fornecedores")]
         public async Task<ActionResult> Index()
         {
             return View(_mapper.Map<IEnumerable<FornecedorViewModel>>((await _fornecedorRepository.ObterTodos())));
         }
 
-        [Route("novo-fornecedor")]
-        public async Task<ActionResult> Create()
-        {
-            return View();
-        }        
-        
-        [HttpPost]
-        [Route("novo-fornecedor")]
-        public async Task<ActionResult> Create(FornecedorViewModel fornecedor)
-        {
-            if (!ModelState.IsValid) return View(fornecedor);
-            await _fornecedorService.Adicionar(_mapper.Map<Fornecedor>(fornecedor));
-            return RedirectToAction("Index");
-        }
-
+        [AllowAnonymous]
         [Route("dados-do-fornecedor/{id:guid}")]
         public async Task<ActionResult> Details(Guid id)
         {
             var fornecedor = await ObterFornecedorProdutosEndereco(id);
             if (fornecedor is null) return HttpNotFound();
             return View(fornecedor);
+        }
+        [ClaimsAuthorize(FornecedorClaim, CreateClaim)]
+        [Route("novo-fornecedor")]
+        public ActionResult Create()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ClaimsAuthorize(FornecedorClaim, CreateClaim)]
+        [Route("novo-fornecedor")]
+        public async Task<ActionResult> Create(FornecedorViewModel fornecedor)
+        {
+            if (!ModelState.IsValid) return View(fornecedor);
+            await _fornecedorService.Adicionar(_mapper.Map<Fornecedor>(fornecedor));
+            if (!OperacaoValida()) return View(fornecedor);
+            return RedirectToAction("Index");
         }
 
         [HttpGet]
@@ -67,9 +76,9 @@ namespace MatheusVSMP.AppMvc.MeusProdutos.Controllers
         {
             var fornecedor = await ObterFornecedorEndereco(id);
             if (fornecedor is null) return HttpNotFound();
-            return PartialView("_AtualizarEndereco",new FornecedorViewModel() { Endereco = fornecedor.Endereco });
+            return PartialView("_AtualizarEndereco", new FornecedorViewModel() { Endereco = fornecedor.Endereco });
         }
-        
+
         [HttpPost]
         [Route("atualizar-endereco-fornecedor/{id:guid}")]
         public async Task<ActionResult> AtualizarEndereco(FornecedorViewModel fornecedor)
@@ -79,11 +88,13 @@ namespace MatheusVSMP.AppMvc.MeusProdutos.Controllers
 
             if (!ModelState.IsValid) return PartialView("_AtualizarEndereco", fornecedor);
             await _fornecedorService.AtualizarEndereco(_mapper.Map<Endereco>(fornecedor.Endereco));
+            if (!OperacaoValida()) return View(fornecedor);
 
             var url = Url.Action("ObterEndereco", "Fornecedores", new { id = fornecedor.Endereco.FornecedorId });
             return Json(new { success = true, url });
         }
-        
+
+        [ClaimsAuthorize(FornecedorClaim, EditClaim)]
         [HttpGet]
         [Route("editar-fornecedor/{id:guid}")]
         public async Task<ActionResult> Edit(Guid id)
@@ -93,6 +104,7 @@ namespace MatheusVSMP.AppMvc.MeusProdutos.Controllers
             return View(fornecedor);
         }
 
+        [ClaimsAuthorize(FornecedorClaim, EditClaim)]
         [Route("editar-fornecedor/{id:guid}")]
         [HttpPost]
         public async Task<ActionResult> Edit(Guid id, FornecedorViewModel fornecedorViewModel)
@@ -101,10 +113,12 @@ namespace MatheusVSMP.AppMvc.MeusProdutos.Controllers
             if (!ModelState.IsValid) return View(fornecedorViewModel);
             var fornecedor = _mapper.Map<Fornecedor>(fornecedorViewModel);
             await _fornecedorService.Atualizar(fornecedor);
+            if (!OperacaoValida()) return View(fornecedor);
+
             return RedirectToAction("Index");
         }
 
-
+        [ClaimsAuthorize(FornecedorClaim, DeleteClaim)]
         [Route("excluir-fornecedor/{id:guid}")]
         public async Task<ActionResult> Delete(Guid id)
         {
@@ -113,6 +127,7 @@ namespace MatheusVSMP.AppMvc.MeusProdutos.Controllers
             return View(fornecedor);
         }
 
+        [ClaimsAuthorize(FornecedorClaim, DeleteClaim)]
         [HttpPost, ActionName("Delete")]
         [Route("excluir-fornecedor/{id:guid}")]
         public async Task<ActionResult> DeleteConfirmed(Guid id)
@@ -120,6 +135,8 @@ namespace MatheusVSMP.AppMvc.MeusProdutos.Controllers
             var fornecedor = await ObterFornecedorEndereco(id);
             if (fornecedor is null) return HttpNotFound();
             await _fornecedorService.Remover(id);
+            if (!OperacaoValida()) return View(fornecedor);
+
             return RedirectToAction("Index");
         }
 

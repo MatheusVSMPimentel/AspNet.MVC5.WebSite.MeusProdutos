@@ -43,6 +43,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\Constants\CommomConstants.cs" />
     <Compile Include="Core\Constants\MensagensConstantes.cs" />
     <Compile Include="Core\Data\IRepository.cs" />
     <Compile Include="Core\Entities\Entity.cs" />

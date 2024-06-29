@@ -1,4 +1,5 @@
 ﻿@using MatheusVSMP.AppMvc.MeusProdutos.Extensions;
+@using MatheusVSMP.Business.Core.Constants;
 
 @model IEnumerable<MatheusVSMP.AppMvc.MeusProdutos.ViewModels.FornecedorViewModel>
 @{
@@ -7,33 +8,45 @@
 
 <h2>ViewBag.Title</h2>
 <hr>
-<p>
-    <a class="btn btn-success" href="@Url.Action("Create","Fornecedores")">
-        <span class="glyphicon glyphicon-save"> </span>
-        Criar Novo Fornecedor
-    </a>
-</p>
+@{
+    if (this.PermitirExibicao(CommomConstants.FornecedorClaim, CommomConstants.CreateClaim))
+    {
+        <p>
+            <a class="btn btn-success" href="@Url.Action("Create", "Fornecedores")">
+                <span class="glyphicon glyphicon-save"> </span>
+                Criar Novo Fornecedor
+            </a>
+        </p>
+    }
+}
 <table class="table table-hover">
     <thead>
         <tr>
-        <th>@Html.DisplayNameFor(model => model.Nome)</th>
-        <th>@Html.DisplayNameFor(model => model.Documento)</th>
-        <th>@Html.DisplayNameFor(model => model.Ativo)</th>
+            <th>@Html.DisplayNameFor(model => model.Nome)</th>
+            <th>@Html.DisplayNameFor(model => model.Documento)</th>
+            <th>@Html.DisplayNameFor(model => model.Ativo)</th>
         </tr>
     </thead>
     <tbody>
         @foreach (var fornecedor in Model)
-            {
-                <tr>
-                    <td>@Html.DisplayFor(modelItem => fornecedor.Nome)</td>
-                    <td>@this.FormatarDocumento(fornecedor.TipoFornecedor, fornecedor.Documento)</td>
-                    <td>@Html.DisplayFor(modelItem => fornecedor.Ativo)</td>
-                    <td class="text-right">
-                        <a class="btn btn-warning" href="@Url.Action("Details", "Fornecedores", new {id = fornecedor.Id})"><span class="glyphicon glyphicon-search"></span></a>
-                        <a class="btn btn-info" href="@Url.Action("Edit", "Fornecedores", new {id = fornecedor.Id})"><span class="glyphicon glyphicon-pencil"></span></a>
-                        <a class="btn btn-danger" href="@Url.Action("Delete", "Fornecedores", new {id = fornecedor.Id})"><span class="glyphicon glyphicon-trash"></span></a>
-                    </td>
-                </tr>
-            }
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => fornecedor.Nome)</td>
+                <td>@this.FormatarDocumento(fornecedor.TipoFornecedor, fornecedor.Documento)</td>
+                <td>@Html.DisplayFor(modelItem => fornecedor.Ativo)</td>
+                <td class="text-right">
+                    <a class="btn btn-warning" href="@Url.Action("Details", "Fornecedores", new {id = fornecedor.Id})"><span class="glyphicon glyphicon-search"></span></a>
+                    @*@Html.ActionLink("Editar", "Edit", new { id = fornecedor.Id }, new { @class = "btn btn-info" }).PermitirExibicao(CommomConstants.FornecedorClaim, CommomConstants.EditClaim)*@
+
+                    <a class="btn btn-info" href="@Url.ActionComPermissao("Edit", CommomConstants.FornecedorClaim+"es", new {id = fornecedor.Id},CommomConstants.FornecedorClaim, CommomConstants.EditClaim)"><spam class="glyphicon glyphicon-pencil"></spam></a>
+                    @{
+                        if (this.PermitirExibicao(CommomConstants.FornecedorClaim, CommomConstants.DeleteClaim))
+                        {
+                            <a class="btn btn-danger" href="@Url.Action(CommomConstants.DeleteClaim, CommomConstants.FornecedorClaim, new {id = fornecedor.Id})"><spam class="glyphicon glyphicon-trash"></spam></a>
+                        }
+                    }
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

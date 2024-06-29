@@ -1,23 +1,29 @@
 ﻿using AutoMapper;
 using MatheusVSMP.AppMvc.MeusProdutos.ViewModels;
+using MatheusVSMP.Business.Core.Notificacoes;
+using MatheusVSMP.Business.Models.Fornecedores;
 using MatheusVSMP.Business.Models.Fornecedores.Interfaces;
 using MatheusVSMP.Business.Models.Produtos;
 using MatheusVSMP.Business.Models.Produtos.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
+using System.Web;
 using System.Web.Mvc;
+
 
 namespace MatheusVSMP.AppMvc.MeusProdutos.Controllers
 {
-    public class ProdutosController : Controller
+    public class ProdutosController : BaseController
     {
         private readonly IProdutoService _produtoService;
         private readonly IProdutoRepository _produtoRepository;
         private readonly IFornecedorRepository _fornecedorRepository;
         private readonly IMapper _mapper;
 
-        public ProdutosController(IProdutoService produtoService, IProdutoRepository produtoRepository, IMapper mapper, IFornecedorRepository fornecedorRepository)
+        public ProdutosController(IProdutoService produtoService, IProdutoRepository produtoRepository, IMapper mapper, IFornecedorRepository fornecedorRepository,
+                                      INotificador notificador) : base(notificador)
         {
             _produtoService = produtoService;
             _produtoRepository = produtoRepository;
@@ -58,14 +64,17 @@ namespace MatheusVSMP.AppMvc.MeusProdutos.Controllers
         public async Task<ActionResult> Create(ProdutoViewModel produtoViewModel)
         {
             produtoViewModel = await PopularFornecedores(produtoViewModel);
-            if (ModelState.IsValid)
-            {
-                await _produtoService.Adicionar(_mapper.Map<Produto>(produtoViewModel));
+            if (!ModelState.IsValid)
+                return View(produtoViewModel);
+            
+            if(!UploadImagem(produtoViewModel.ImagemUpload, $"{produtoViewModel.Id}_"))
+                return View(produtoViewModel);
 
-                return RedirectToAction("Index");
-            }
+            produtoViewModel.Imagem = $"{produtoViewModel.Id}_{produtoViewModel.ImagemUpload.FileName}";
+            await _produtoService.Adicionar(_mapper.Map<Produto>(produtoViewModel));
+            if (!OperacaoValida()) return View(produtoViewModel);
 
-            return View(produtoViewModel);
+            return RedirectToAction("Index");
         }
 
         [Route("editar-produto/{id:guid}")]
@@ -86,12 +95,31 @@ namespace MatheusVSMP.AppMvc.MeusProdutos.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Edit(ProdutoViewModel produtoViewModel)
         {
-            if (ModelState.IsValid)
+
+            if (!ModelState.IsValid)
+                return View(produtoViewModel);
+            var produtoAtualizacao = await ObterProduto(produtoViewModel.Id);
+             produtoViewModel.Imagem = produtoAtualizacao.Imagem;
+
+            if (produtoViewModel.ImagemUpload != null)
             {
-                await _produtoService.Atualizar(_mapper.Map<Produto>(produtoViewModel));
-                return RedirectToAction("Index");
+                if (!UploadImagem(produtoViewModel.ImagemUpload, $"{produtoViewModel.Id}_"))
+                    return View(produtoViewModel);
+
+                produtoAtualizacao.Imagem = $"{produtoViewModel.Id}_{produtoViewModel.ImagemUpload.FileName}"; 
             }
-            return View(produtoViewModel);
+
+            produtoAtualizacao.Nome = produtoViewModel.Nome;
+            produtoAtualizacao.Descricao = produtoViewModel.Descricao;
+            produtoAtualizacao.Valor = produtoViewModel.Valor;
+            produtoAtualizacao.Ativo = produtoViewModel.Ativo;
+            produtoAtualizacao.FornecedorId = produtoViewModel.FornecedorId;
+            produtoAtualizacao.Fornecedor = produtoViewModel.Fornecedor;
+
+            await _produtoService.Atualizar(_mapper.Map<Produto>(produtoAtualizacao));
+            if (!OperacaoValida()) return View(produtoViewModel);
+
+            return RedirectToAction("Index");
         }
 
         [Route("excluir-produto/{id:guid}")]
@@ -118,6 +146,8 @@ namespace MatheusVSMP.AppMvc.MeusProdutos.Controllers
                 return HttpNotFound();
             }
             await _produtoService.Remover(id);
+            if (!OperacaoValida()) return View(produtoViewModel);
+
             return RedirectToAction("Index");
         }
 
@@ -127,9 +157,28 @@ namespace MatheusVSMP.AppMvc.MeusProdutos.Controllers
             return produto;
         }
 
+        private bool UploadImagem(HttpPostedFileBase file, string imgPrefixo)
+        {
+            if(file is null || file.ContentLength < 1)
+            {
+                ModelState.AddModelError(string.Empty, "Imagem invalida.");
+                return false;
+            }
+
+            var path = Path.Combine(HttpContext.Server.MapPath("~/imagens"), imgPrefixo + file.FileName);
+
+            if (System.IO.File.Exists(path))
+            {
+                ModelState.AddModelError(string.Empty, "Ja existe um arquivo com esse nome.");
+                return false;
+            }
+            file.SaveAs(path);
+            return true;
+        }
+
         private async Task<ProdutoViewModel> ObterProduto(Guid id)
         {
-           var produto =  _mapper.Map<ProdutoViewModel>(await _produtoRepository.ObterPorId(id));
+           var produto =  _mapper.Map<ProdutoViewModel>(await _produtoRepository.ObterProdutoFornecedor(id));
             produto = await PopularFornecedores(produto);
             return produto;
         }

@@ -1,4 +1,6 @@
-﻿@model IEnumerable<MatheusVSMP.AppMvc.MeusProdutos.ViewModels.ProdutoViewModel>
+﻿@using MatheusVSMP.AppMvc.MeusProdutos.Extensions;
+@using MatheusVSMP.Business.Core.Constants;
+@model IEnumerable<MatheusVSMP.AppMvc.MeusProdutos.ViewModels.ProdutoViewModel>
 
 @{
     ViewBag.Title = "Lista de Produtos";
@@ -6,12 +8,17 @@
 
 <h1><b>@ViewBag.Title</b></h1>
 <hr />
+@{
+    if (this.PermitirExibicao(CommomConstants.ProdutoClaim, CommomConstants.CreateClaim))
+    {
+        <p>
+            <a class="btn btn-info" href="@Url.Action("Create", "Produtos")">
+                Novo Produto
+            </a>
+        </p>
+    }
+}
 
-<p>
-    <a class="btn btn-info" href="@Url.Action("Create", "Produtos")">
-        Novo Produto
-    </a>
-</p>
 
 
 @Html.Partial("_ListaProdutos")

@@ -28,9 +28,9 @@ namespace MatheusVSMP.AppMvc.MeusProdutos.ViewModels
         [DisplayName("Descrição")]
         [Required(ErrorMessage = RequiredDataAnnotations)]
         [StringLength(1000, MinimumLength = 2, ErrorMessage = StringLegthDataAnnotations)]
-        public string Descricao { get; set; }/*
+        public string Descricao { get; set; }
         [DisplayName("Imagem do Produto")]
-        public HttpPostedFileBase ImagemUpload { get; set; }*/
+        public HttpPostedFileBase ImagemUpload { get; set; }
         public string Imagem { get; set; }
         [Moeda]
         [Required(ErrorMessage = RequiredDataAnnotations)]
